@@ -8,7 +8,7 @@ use Orchid\Screen\AsSource;
 
 class Task extends Model
 {
-    use HasFactory, AsSource;
+    use HasFactory;
 
     protected $fillable = [
         'name',

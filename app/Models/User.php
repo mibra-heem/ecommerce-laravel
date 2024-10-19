@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Auth\Access\HandlesAuthorization;
-use Orchid\Platform\Models\User as Authenticatable;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements AuthorizableContract
+class User extends Authenticatable
 {
 
-    use Notifiable, HandlesAuthorization;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.

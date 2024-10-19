@@ -11,7 +11,7 @@ use Orchid\Screen\AsSource;
 
 class Category extends Model
 {
-    use HasFactory, AsSource, Filterable, Attachable;
+    use HasFactory;
 
     protected $fillable = [
         'id',
@@ -19,7 +19,7 @@ class Category extends Model
     ];
 
 
-    protected function product(){
-        return BelongsTo(Category::class);
-    }
+    // protected function product(){
+    //     return BelongsTo(Category::class);
+    // }
 }

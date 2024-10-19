@@ -10,7 +10,7 @@ use Orchid\Screen\AsSource;
 
 class Product extends Model
 {
-    use HasFactory, AsSource, Filterable, Attachable;
+    use HasFactory;
 
 
     protected $keyType = 'string'; // Set the key type to string

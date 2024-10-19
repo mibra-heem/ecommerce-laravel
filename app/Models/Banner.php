@@ -9,8 +9,10 @@ use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 
 class Banner extends Model
+
+//AsSource, Filterable, Attachable
 {
-    use HasFactory, AsSource, Filterable, Attachable;
+    use HasFactory;
 
     protected $fillable = [
         'id',
