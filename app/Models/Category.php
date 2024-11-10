@@ -4,10 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Orchid\Attachment\Attachable;
-use Orchid\Filters\Filterable;
-use Orchid\Screen\AsSource;
 
 class Category extends Model
 {
@@ -19,7 +15,7 @@ class Category extends Model
     ];
 
 
-    // protected function product(){
-    //     return BelongsTo(Category::class);
-    // }
+    protected function products(){
+        return $this->hasMany(Product::class);
+    }
 }
