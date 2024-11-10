@@ -1,3 +1,4 @@
-<div>
-    <!-- Simplicity is the ultimate sophistication. - Leonardo da Vinci -->
-</div>
+
+<button style ="background: {{$color}}">
+{{$slot}}
+</button>

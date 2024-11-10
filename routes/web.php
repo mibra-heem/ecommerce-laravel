@@ -21,4 +21,3 @@ Route::resource('products', ProductController::class);
 Route::resource('banners', BannerController::class);
 
 Route::resource('categories', CategoryController::class);
-
