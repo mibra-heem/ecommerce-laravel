@@ -1,6 +1,8 @@
 <?php
 
-use App\Http\Controllers\CalculatorController;
+use App\Http\Controllers\BannerController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,17 +16,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::resource('products', ProductController::class);
 
+Route::resource('banners', BannerController::class);
 
-
-Route::controller(CalculatorController::class)->group(function () {
-    Route::get('addition/{a}/{b}' ,'addition');
-    Route::get('subtract/{a}/{b}' ,'subtract');
-});
-
-Route::get('/home', function(){
-    return view('home');
-});
+Route::resource('categories', CategoryController::class);

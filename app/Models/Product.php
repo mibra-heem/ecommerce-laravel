@@ -19,7 +19,8 @@ class Product extends Model
     protected $fillable = [
         'id',
         'name',
-        'category',
+        'price',
+        'category_id',
         'image',
         'descr',
         'rating',
@@ -53,6 +54,10 @@ class Product extends Model
         // Format the new ID with the 'PD-' prefix and zero-padding
         $prefix = 'PD-';
         return $prefix . str_pad(self::$lastId, 5, '0', STR_PAD_LEFT);
+    }
+
+    public function category(){
+        return $this->belongsTo(Category::class);
     }
 
 }

@@ -2,18 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-  <title>@yield('title')</title>
+  <title>Foot Wear</title>
+  <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 </head>
 <body>
 
+  @include('layouts.partials.header')
+
   @yield('content')
 
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  @include('layouts.partials.footer')
+  
+  <!-- jQuery CDN (Make sure this is before any other JS files that depend on it) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  <script src="{{ asset('js/script.js') }}"></script>
+  <!-- Other scripts -->
+  <script src="{{ asset('assets/js/bootstrap.bundle.js') }}"></script>
+
+  @yield('script')
+  <script src="{{ asset('assets/js/script.js') }}"></script>
+  
 </body>
 </html>
