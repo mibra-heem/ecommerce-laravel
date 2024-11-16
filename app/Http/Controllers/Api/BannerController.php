@@ -20,7 +20,7 @@ class BannerController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $banners,
+            'banners' => $banners,
         ], 200);
     }
 
