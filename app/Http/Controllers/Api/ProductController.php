@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\URL;
 
 class ProductController extends Controller
 {
@@ -14,15 +15,24 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
-    {
-        $products = Product::with('category')->get();
+    
 
-        return response()->json([
-            'success' => true,
-            'data' => $products,
-        ], 200);
-    }
+public function index(Request $request)
+{
+    $products = Product::with('category')->cursorPaginate(2); // Adjust the number of items per page
+
+    $nextCursor = $products->nextCursor()?->encode();
+    $prevCursor = $products->previousCursor()?->encode();
+
+    return response()->json([
+        'success' => true,
+        'data' => $products->items(),
+        'next_page_url' => $nextCursor ? URL::current() . '?cursor=' . $nextCursor : null,
+        'prev_page_url' => $prevCursor ? URL::current() . '?cursor=' . $prevCursor : null,
+    ], 200);
+}
+
+
 
     /**
      * Show the form for creating a new resource.
