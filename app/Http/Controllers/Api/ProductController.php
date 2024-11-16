@@ -26,7 +26,7 @@ class ProductController extends Controller
      
          return response()->json([
              'success' => true,
-             'data' => $products->items(),
+             'products' => $products->items(),
              'next_page_url' => $nextCursor ? URL::current() . '?cursor=' . $nextCursor->encode() : null,
              'prev_page_url' => $prevCursor ? URL::current() . '?cursor=' . $prevCursor->encode() : null,
          ], 200);
