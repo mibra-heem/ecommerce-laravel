@@ -1,4 +1,4 @@
-@extends('layouts.main')
+{{-- @extends('layouts.main')
 
 
 @section('content')
@@ -28,4 +28,4 @@
         @endif
     </form>
 
-@endsection
+@endsection --}}
