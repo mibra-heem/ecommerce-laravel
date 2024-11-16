@@ -17,20 +17,21 @@ class ProductController extends Controller
      */
     
 
-public function index(Request $request)
-{
-    $products = Product::with('category')->cursorPaginate(2); // Adjust the number of items per page
-
-    $nextCursor = $products->nextCursor()?->encode();
-    $prevCursor = $products->previousCursor()?->encode();
-
-    return response()->json([
-        'success' => true,
-        'data' => $products->items(),
-        'next_page_url' => $nextCursor ? URL::current() . '?cursor=' . $nextCursor : null,
-        'prev_page_url' => $prevCursor ? URL::current() . '?cursor=' . $prevCursor : null,
-    ], 200);
-}
+     public function index(Request $request)
+     {
+         $products = Product::with('category')->cursorPaginate(2); // Adjust the number of items per page
+     
+         $nextCursor = $products->nextCursor();
+         $prevCursor = $products->previousCursor();
+     
+         return response()->json([
+             'success' => true,
+             'data' => $products->items(),
+             'next_page_url' => $nextCursor ? URL::current() . '?cursor=' . $nextCursor->encode() : null,
+             'prev_page_url' => $prevCursor ? URL::current() . '?cursor=' . $prevCursor->encode() : null,
+         ], 200);
+     }
+     
 
 
 
