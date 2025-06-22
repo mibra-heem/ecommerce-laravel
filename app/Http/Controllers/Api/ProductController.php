@@ -15,23 +15,33 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    
 
-     public function index(Request $request)
-     {
-         $products = Product::with('category')->cursorPaginate(2); // Adjust the number of items per page
-     
-         $nextCursor = $products->nextCursor();
-         $prevCursor = $products->previousCursor();
-     
-         return response()->json([
-             'success' => true,
-             'products' => $products->items(),
-             'next_page_url' => $nextCursor ? URL::current() . '?cursor=' . $nextCursor->encode() : null,
-             'prev_page_url' => $prevCursor ? URL::current() . '?cursor=' . $prevCursor->encode() : null,
-         ], 200);
-     }
-     
+
+    public function index(Request $request)
+    {
+        $products = Product::with('category')->cursorPaginate(2); // Adjust the number of items per page
+
+        $productsTransformed = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'image' => $product->image,
+                'price' => $product->price,
+                'category' => $product->category->name ?? null,
+                'description' => $product->descr,
+            ];
+        });
+        $nextCursor = $products->nextCursor();
+        $prevCursor = $products->previousCursor();
+
+        return response()->json([
+            'success' => true,
+            'products' => $productsTransformed,
+            'next_page_url' => $nextCursor ? URL::current() . '?cursor=' . $nextCursor->encode() : null,
+            'prev_page_url' => $prevCursor ? URL::current() . '?cursor=' . $prevCursor->encode() : null,
+        ], 200);
+    }
+
 
 
 
