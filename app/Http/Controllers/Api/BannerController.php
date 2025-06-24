@@ -146,20 +146,4 @@ class BannerController extends Controller
         ], 200);
     }
 
-    /**
-     * Handle image upload.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param string $fieldName
-     * @param string $uploadPath
-     * @return string
-     */
-    protected function handleImageUpload(Request $request, string $fieldName, string $uploadPath): string
-    {
-        $file = $request->file($fieldName);
-        $imageName = time() . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path($uploadPath), $imageName);
-
-        return $uploadPath . $imageName;
-    }
 }

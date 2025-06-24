@@ -19,7 +19,7 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $products = Product::with('category')->cursorPaginate(2); // Adjust the number of items per page
+        $products = Product::with('category')->cursorPaginate(10); // Adjust the number of items per page
 
         $productsTransformed = $products->map(function ($product) {
             return [
@@ -41,9 +41,6 @@ class ProductController extends Controller
             'prev_page_url' => $prevCursor ? URL::current() . '?cursor=' . $prevCursor->encode() : null,
         ], 200);
     }
-
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -205,20 +202,4 @@ class ProductController extends Controller
         ], 200);
     }
 
-    /**
-     * Handle image upload.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $key
-     * @param  string  $path
-     * @return string
-     */
-    protected function handleImageUpload(Request $request, $key, $path)
-    {
-        if ($request->hasFile($key)) {
-            return $request->file($key)->store($path, 'public');
-        }
-
-        return '';
-    }
 }
