@@ -16,7 +16,7 @@ class BannerController extends Controller
      */
     public function index()
     {
-        $banners = Banner::all();
+        $banners = Banner::get(['id', 'category_id', 'image']);
 
         return response()->json([
             'success' => true,
@@ -32,8 +32,10 @@ class BannerController extends Controller
      */
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         if ($validator->fails()) {
@@ -48,6 +50,7 @@ class BannerController extends Controller
 
         $banner = Banner::create([
             'image' => $imageName,
+            'category_id'=> $request->category_id,
         ]);
 
         return response()->json([
@@ -100,6 +103,7 @@ class BannerController extends Controller
 
         $validator = Validator::make($request->all(), [
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         if ($validator->fails()) {

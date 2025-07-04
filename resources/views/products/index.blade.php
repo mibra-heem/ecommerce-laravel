@@ -34,7 +34,7 @@
                         <td>{{ $product->name }}</td>
                         <td>{{ $product->category->name }}</td>
                         <td>{{ $product->price }}</td>
-                        <td><img style="height: 120px; width:150px; border-radius:10px" src="{{ asset($product->image) }}"
+                        <td><img style="height: 120px; width:120px; border-radius:10px" src="{{ asset($product->image) }}"
                                 alt=""></td>
                         <td>{{ $product->descr }}</td>
                         <td><a href="{{ route('products.edit', $product->id) }}" class="btn btn-secondary btn-md">Edit</a>

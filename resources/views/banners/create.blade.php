@@ -9,14 +9,25 @@
 
     <form action="{{ route('banners.store') }}" method="POST" enctype="multipart/form-data" class="container">
         @csrf
-        <div class="row mb-3">
-            <label for="name" class="col-sm-2 col-form-label">Banner Name</label>
+        <!-- <div class="row mb-3">
+            <label for="name" class="col-sm-2 col-form-label">Name</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" name="name" id="name" value="{{ old('name') }}">
             </div>
+        </div> -->
+        <div class="row mb-3">
+            <label for="category_id" class="col-sm-2 col-form-label">Category</label>
+            <div class="col-sm-10">
+                <select class="form-select text-secondary" name="category_id" id="category_id"
+                    aria-label="Default select example">
+                    <option selected>Select Category...</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
-        
-        
+    
         <div class="row mb-3">
             <label for="image" class="col-sm-2 col-form-label">Image</label>
             <div class="col-sm-10">

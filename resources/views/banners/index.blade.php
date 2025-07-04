@@ -25,7 +25,7 @@
                 
                     <tr>
                         <th scope="row">{{ $banner->id }}</th>
-                        <td><img style="height: 120px; width:150px; border-radius:10px" src="{{ asset($banner->image) }}"
+                        <td><img style="height: 150px; width:450px; border-radius:10px" src="{{ asset($banner->image) }}"
                                 alt=""></td>
                         <td><a href="{{ route('banners.edit', $banner->id) }}" class="btn btn-secondary btn-md">Edit</a>
                         </td>

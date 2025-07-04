@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class BannerController extends Controller
@@ -14,7 +15,7 @@ class BannerController extends Controller
      */
     public function index()
     {
-        $banners = Banner::get();
+        $banners = Banner::with('category')->get();
 
         return view('banners.index', ['banners' => $banners]);
     }
@@ -26,7 +27,8 @@ class BannerController extends Controller
      */
     public function create()
     {
-        return view('banners.create');
+        $categories = Category::all();
+        return view('banners.create', ['categories' => $categories]);
     }
 
     /**
@@ -38,6 +40,7 @@ class BannerController extends Controller
     public function store(Request $request)
     {
         $validator = $this->validator($request, [
+            'category_id' => 'required|exists:categories,id',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
         ]);
 
@@ -49,6 +52,7 @@ class BannerController extends Controller
         $imageName = $this->handleImageUpload($request, 'image', 'banner/images/');
 
         Banner::create([
+            'category_id' => $request->category_id,
             'image' => $imageName,
         ]);
 

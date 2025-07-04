@@ -13,15 +13,29 @@
         <div class="row mb-3">
             <label for="name" class="col-sm-2 col-form-label">Banner Name</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" name="name" id="name"
-                    value="{{ old('name', $banner->name) }}">
+                <input type="text" class="form-control" name="name" id="name" value="{{ old('name', $banner->name) }}">
             </div>
         </div>
         <div class="row mb-3">
             <label for="image" class="col-sm-2 col-form-label">Image</label>
             <div class="col-sm-10">
-                <input type="file" class="form-control" name="image" id="image"
-                    value="{{ old('image', $banner->image) }}">
+                <input type="file" class="form-control" name="image" id="image" value="{{ old('image', $banner->image) }}">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="category" class="col-sm-2 col-form-label">Category</label>
+            <div class="col-sm-10">
+                <select class="form-select text-secondary" name="category" id="category" name="category"
+                    aria-label="Default select example">
+                    <option>Select Category...</option>
+                    @foreach ($categories as $category)
+                        @if ($category->name === $banner->categories)
+                            <option selected value="{{old('category', $category->name)}}">{{$category->name}}</option>
+                        @else
+                            <option value="{{old('category', $category->name)}}">{{$category->name}}</option>
+                        @endif
+                    @endforeach
+                </select>
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Save</button>

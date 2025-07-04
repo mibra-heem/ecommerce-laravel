@@ -1,4 +1,4 @@
-{{-- @extends('layouts.main')
+@extends('layouts.main')
 
 
 @section('content')
@@ -10,9 +10,15 @@
     <form action="{{ route('categories.store') }}" method="POST" enctype="multipart/form-data" class="container">
         @csrf
         <div class="row mb-3">
-            <label for="name" class="col-sm-2 col-form-label">Category Name</label>
+            <label for="name" class="col-sm-2 col-form-label">Name</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" name="name" id="name" value="{{ old('name') }}">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="image" class="col-sm-2 col-form-label">Image</label>
+            <div class="col-sm-10">
+                <input type="file" class="form-control" name="image" id="image" value="{{ old('image') }}">
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Save</button>
@@ -28,4 +34,4 @@
         @endif
     </form>
 
-@endsection --}}
+@endsection 

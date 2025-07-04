@@ -44,8 +44,8 @@ class ProductController extends Controller
 
         $validator = $this->validator($request, [
                 'name' => 'required',
-                'category_id' => '',
                 'price' => 'required',
+                'category_id' => 'required|exists:categories,id',
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'descr' => 'max:2048'
         ]);
@@ -60,9 +60,9 @@ class ProductController extends Controller
 
         Product::create([
             'name' => $request->name,
-            'category_id' => 1,
             'price' => $request->price,
             'image' => $imageName,
+            'category_id' => $request->category_id,
             'descr' => $request->descr ?? ''
         ]);
 

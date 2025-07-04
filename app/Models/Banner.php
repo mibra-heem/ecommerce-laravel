@@ -10,12 +10,17 @@ use Orchid\Screen\AsSource;
 
 class Banner extends Model
 
-//AsSource, Filterable, Attachable
 {
     use HasFactory;
 
     protected $fillable = [
         'id',
+        'category_id',
         'image',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

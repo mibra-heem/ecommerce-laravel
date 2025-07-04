@@ -19,26 +19,27 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $products = Product::with('category')->cursorPaginate(10); // Adjust the number of items per page
+        $productsData = Product::with('category')->get();
 
-        $productsTransformed = $products->map(function ($product) {
+        // $nextCursor = $productsData->nextCursor();
+        // $prevCursor = $productsData->previousCursor();
+
+        $products = $productsData->map(function ($product) {
             return [
                 'id' => $product->id,
                 'name' => $product->name,
                 'image' => $product->image,
                 'price' => $product->price,
-                'category' => $product->category->name ?? null,
+                'category' => $product->category,
                 'description' => $product->descr,
             ];
         });
-        $nextCursor = $products->nextCursor();
-        $prevCursor = $products->previousCursor();
-
+        
         return response()->json([
             'success' => true,
-            'products' => $productsTransformed,
-            'next_page_url' => $nextCursor ? URL::current() . '?cursor=' . $nextCursor->encode() : null,
-            'prev_page_url' => $prevCursor ? URL::current() . '?cursor=' . $prevCursor->encode() : null,
+            'products' => $products,
+            // 'next_page_url' => $nextCursor ? URL::current() . '?cursor=' . $nextCursor->encode() : null,
+            // 'prev_page_url' => $prevCursor ? URL::current() . '?cursor=' . $prevCursor->encode() : null,
         ], 200);
     }
 
@@ -63,11 +64,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'category_id' => 'nullable|exists:categories,id',
+            'categoryId' => 'required|exists:categories,id',
             'price' => 'required|numeric',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'descr' => 'nullable|max:2048',
         ]);
 
@@ -82,10 +84,10 @@ class ProductController extends Controller
 
         $product = Product::create([
             'name' => $request->name,
-            'category_id' => $request->category_id ?? 1,
+            'category_id' => $request->categoryId ?? 1,
             'price' => $request->price,
             'image' => $imageName,
-            'descr' => $request->descr ?? '',
+            'descr' => $request->description,
         ]);
 
         return response()->json([

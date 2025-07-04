@@ -37,19 +37,23 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->file('image'));
         // Validate the incoming request
         $validator = $this->validator($request, [
-            'name' => 'required'
+            'name' => 'required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
+        
         // If validation fails, return a JSON response with error messages
         if ($validator->fails()) {
             return $this->handleValidationFailure($request, $validator);
         }
 
+        $imagePath = $this->handleImageUpload($request, 'image', 'categories/images/');
         // Create the new category
         $category = Category::create([
             'name' => $request->name,
+            'image' => $imagePath,
         ]);
 
         // Return a JSON response with the created category data
