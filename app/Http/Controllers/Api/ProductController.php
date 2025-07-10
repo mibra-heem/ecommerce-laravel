@@ -32,9 +32,11 @@ class ProductController extends Controller
                 'price' => $product->price,
                 'category' => $product->category,
                 'description' => $product->descr,
+                'created_at' => $product->created_at,
+                'updated_at' => $product->updated_at,
             ];
         });
-        
+
         return response()->json([
             'success' => true,
             'products' => $products,
@@ -67,7 +69,7 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'categoryId' => 'required|exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'descr' => 'nullable|max:2048',
@@ -84,7 +86,7 @@ class ProductController extends Controller
 
         $product = Product::create([
             'name' => $request->name,
-            'category_id' => $request->categoryId ?? 1,
+            'category_id' => $request->category_id,
             'price' => $request->price,
             'image' => $imageName,
             'descr' => $request->description,
@@ -151,13 +153,17 @@ class ProductController extends Controller
             ], 404);
         }
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'category_id' => 'nullable|exists:categories,id',
-            'price' => 'required|numeric',
+        $method = $request->method();
+
+        $rules = [
+            'name' => $method === 'PATCH' ? 'sometimes|required' : 'required',
+            'category_id' => $method === 'PATCH' ? 'sometimes|required|exists:categories,id' : 'required|exists:categories,id',
+            'price' => $method === 'PATCH' ? 'sometimes|required|numeric' : 'required|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'descr' => 'nullable|max:2048',
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -167,10 +173,12 @@ class ProductController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $product->image = $this->handleImageUpload($request, 'image', 'product/images/');
+            if ($product->image) {
+                $this->deleteImage($product->image);
+            }
+            $product->image = $this->uploadImage($request, 'product/images/');
         }
-
-        $product->update($request->only(['name', 'category_id', 'price', 'descr']));
+        $product->update($request->only(['name', 'price', 'category_id', 'descr']));
 
         return response()->json([
             'success' => true,

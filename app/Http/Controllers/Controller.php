@@ -35,18 +35,18 @@ class Controller extends BaseController
             return redirect()->back()->withErrors($validator)->withInput();
     }
 
-    protected function handleImageUpload(Request $request, string $imageKey, string $imagePath)
+    protected function uploadImage(Request $request, string $imagePath)
     {
-        $image = $request->file($imageKey);
-        $imageFileName = time() . '_' . $image->getClientOriginalName();
-        $image->move(public_path("uploads/{$imagePath}"), $imageFileName);
+        $image = $request->file('image');
+        $imageName = time() . '_' . $image->getClientOriginalName();
+        $image->move(public_path("uploads/{$imagePath}"), $imageName);
 
-        return "/uploads/{$imagePath}{$imageFileName}";
+        return "/uploads/{$imagePath}{$imageName}";
     }
 
-    protected function deleteExistingImage($imageFileName)
+    protected function deleteImage($imagePath)
     {
-        $file = public_path($imageFileName);
+        $file = public_path($imagePath);
         if (file_exists($file)) {
             unlink($file);
         }
