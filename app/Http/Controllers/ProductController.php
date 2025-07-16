@@ -56,7 +56,7 @@ class ProductController extends Controller
 
         }
 
-        $imageName = $this->handleImageUpload($request, 'image', 'product/images/');
+        $imageName = $this->uploadImage($request, 'image', 'product/images/');
 
         Product::create([
             'name' => $request->name,

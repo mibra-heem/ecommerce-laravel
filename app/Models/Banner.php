@@ -14,13 +14,9 @@ class Banner extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id',
-        'category_id',
-        'image',
+        'image_url',
+        'is_active',
+        'order',
     ];
 
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
 }

@@ -16,7 +16,7 @@ class BannerController extends Controller
      */
     public function index()
     {
-        $banners = Banner::get(['id', 'category_id', 'image']);
+        $banners = Banner::get(['id', 'image_url', 'is_active']);
 
         return response()->json([
             'success' => true,

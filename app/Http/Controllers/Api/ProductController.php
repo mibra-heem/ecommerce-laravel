@@ -19,19 +19,19 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $productsData = Product::with('category')->get();
-
-        // $nextCursor = $productsData->nextCursor();
-        // $prevCursor = $productsData->previousCursor();
+        $productsData = Product::with(['category', 'images'])->get();
 
         $products = $productsData->map(function ($product) {
             return [
                 'id' => $product->id,
                 'name' => $product->name,
-                'image' => $product->image,
                 'price' => $product->price,
-                'category' => $product->category,
-                'description' => $product->descr,
+                'description' => $product->description,
+                'images' => $product->images->pluck('image_url')->toArray(),
+                'category' => [
+                    'id' => $product->category->id ?? null,
+                    'name' => $product->category->name ?? null,
+                ],
                 'created_at' => $product->created_at,
                 'updated_at' => $product->updated_at,
             ];
@@ -40,10 +40,9 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'products' => $products,
-            // 'next_page_url' => $nextCursor ? URL::current() . '?cursor=' . $nextCursor->encode() : null,
-            // 'prev_page_url' => $prevCursor ? URL::current() . '?cursor=' . $prevCursor->encode() : null,
         ], 200);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -68,11 +67,12 @@ class ProductController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'descr' => 'nullable|max:2048',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'description' => 'nullable|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -82,22 +82,34 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $imageName = $this->handleImageUpload($request, 'image', 'product/images/');
-
+        // Create product
         $product = Product::create([
             'name' => $request->name,
             'category_id' => $request->category_id,
             'price' => $request->price,
-            'image' => $imageName,
-            'descr' => $request->description,
+            'descr' => $request->descr,
         ]);
+
+        // Handle image uploads (if any)
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $imageName = $this->uploadImage($image, 'product/images/');
+
+                // Save to product_images table
+                $product->images()->create([
+                    'image_url' => $imageName,
+                    'order' => $index, // optional ordering
+                ]);
+            }
+        }
 
         return response()->json([
             'success' => true,
-            'data' => $product,
+            'data' => $product->load('images'), // eager load images
             'message' => 'Product created successfully.',
         ], 201);
     }
+
 
     /**
      * Display the specified resource.
@@ -144,7 +156,8 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = Product::find($id);
+
+        $product = Product::with('images')->find($id);
 
         if (!$product) {
             return response()->json([
@@ -156,11 +169,12 @@ class ProductController extends Controller
         $method = $request->method();
 
         $rules = [
-            'name' => $method === 'PATCH' ? 'sometimes|required' : 'required',
+            'name' => $method === 'PATCH' ? 'sometimes|required|string|max:255' : 'required|string|max:255',
             'category_id' => $method === 'PATCH' ? 'sometimes|required|exists:categories,id' : 'required|exists:categories,id',
-            'price' => $method === 'PATCH' ? 'sometimes|required|numeric' : 'required|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'descr' => 'nullable|max:2048',
+            'price' => $method === 'PATCH' ? 'sometimes|required|numeric|min:0' : 'required|numeric|min:0',
+            'description' => 'nullable|string|max:1200',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -172,20 +186,49 @@ class ProductController extends Controller
             ], 422);
         }
 
-        if ($request->hasFile('image')) {
-            if ($product->image) {
-                $this->deleteImage($product->image);
+        // Update fields
+        $product->update($request->only([
+            'name',
+            'category_id',
+            'price',
+            'description',
+        ]));
+
+        // Handle image upload
+        if ($request->hasFile('images')) {
+            // Delete old images
+            foreach ($product->images as $image) {
+                $this->deleteImage($image->image_url);
+                $image->delete();
             }
-            $product->image = $this->uploadImage($request, 'product/images/');
+
+            // Store new images
+            foreach ($request->file('images') as $index => $uploadedImage) {
+                $imagePath = $this->uploadImage($uploadedImage, 'product/images/');
+                $product->images()->create([
+                    'image_url' => $imagePath, // Store relative path
+                    'order' => $index + 1,
+                ]);
+            }
         }
-        $product->update($request->only(['name', 'price', 'category_id', 'descr']));
+
+        $product->load('images', 'category');
 
         return response()->json([
             'success' => true,
-            'data' => $product,
+            'data' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'category_id' => $product->category_id,
+                'price' => $product->price,
+                'description' => $product->description,
+                'images' => $product->images->pluck('image_url'),
+            ],
             'message' => 'Product updated successfully.',
         ], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -195,7 +238,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $product = Product::find($id);
+        $product = Product::with('images')->find($id);
 
         if (!$product) {
             return response()->json([
@@ -204,12 +247,20 @@ class ProductController extends Controller
             ], 404);
         }
 
+        // Delete each image from public storage
+        foreach ($product->images as $image) {
+            $this->deleteImage($image->image_url); // Use your custom method
+            $image->delete(); // Delete DB record
+        }
+
+        // Delete the product
         $product->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Product deleted successfully.',
+            'message' => 'Product and associated images deleted successfully.',
         ], 200);
     }
+
 
 }

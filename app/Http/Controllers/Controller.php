@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use \Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -24,22 +25,21 @@ class Controller extends BaseController
 
     protected function handleValidationFailure(Request $request, $validator)
     {
-            if ($request->wantsJson()) {
-                return response()->json([
-                    "message" => 'Validation failed',
-                    'error' => $validator->errors()->all(),
-                    'status' => false
-                ], 400);
-            }
+        if ($request->wantsJson()) {
+            return response()->json([
+                "message" => 'Validation failed',
+                'error' => $validator->errors()->all(),
+                'status' => false
+            ], 400);
+        }
 
-            return redirect()->back()->withErrors($validator)->withInput();
+        return redirect()->back()->withErrors($validator)->withInput();
     }
 
-    protected function uploadImage(Request $request, string $imagePath)
+    protected function uploadImage(UploadedFile $file, string $imagePath)
     {
-        $image = $request->file('image');
-        $imageName = time() . '_' . $image->getClientOriginalName();
-        $image->move(public_path("uploads/{$imagePath}"), $imageName);
+        $imageName = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path("uploads/{$imagePath}"), $imageName);
 
         return "/uploads/{$imagePath}{$imageName}";
     }

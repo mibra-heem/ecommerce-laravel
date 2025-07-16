@@ -4,32 +4,28 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBannersTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('banners', function (Blueprint $table) {
+        Schema::create('product_images', function (Blueprint $table) {
             $table->id();
+            $table->string('product_id');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->string('image_url');
-            $table->string('link');
-            $table->boolean('is_active')->default(true);
             $table->unsignedInteger('order')->default(0);
             $table->timestamps();
         });
+
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('banners');
+        Schema::dropIfExists('product_images');
     }
-}
+};
