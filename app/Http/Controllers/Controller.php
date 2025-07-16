@@ -9,6 +9,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class Controller extends BaseController
 {
@@ -38,17 +39,20 @@ class Controller extends BaseController
 
     protected function uploadImage(UploadedFile $file, string $imagePath)
     {
-        $imageName = time() . '_' . $file->getClientOriginalName();
-        $file->move(public_path("uploads/{$imagePath}"), $imageName);
+        // stores in storage/app/public/banner/images/
+        $path = $file->store("{$imagePath}", 'public');
 
-        return "/uploads/{$imagePath}{$imageName}";
+        // returns a URL like /storage/banner/images/filename.jpg
+        return Storage::url($path);
     }
 
-    protected function deleteImage($imagePath)
+    protected function deleteImage(string $imageUrl): void
     {
-        $file = public_path($imagePath);
-        if (file_exists($file)) {
-            unlink($file);
+        // Convert URL (/storage/banner/images/file.jpg) to storage path (banner/images/file.jpg)
+        $relativePath = str_replace('/storage/', '', $imageUrl);
+
+        if (Storage::disk('public')->exists($relativePath)) {
+            Storage::disk('public')->delete($relativePath);
         }
     }
 }

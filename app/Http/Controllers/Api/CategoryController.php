@@ -44,7 +44,6 @@ class CategoryController extends Controller
             'parent_id' => 'nullable|exists:categories,id',
             'icon' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|max:2048',
-            'is_active' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -63,7 +62,6 @@ class CategoryController extends Controller
             'name' => $request->name,
             'parent_id' => $request->parent_id,
             'icon_url' => $icon_url,
-            'is_active' => $request->is_active,
             'description' => $request->description,
         ]);
 
@@ -74,30 +72,6 @@ class CategoryController extends Controller
         ], 201);
     }
 
-
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show($id)
-    {
-        $category = Category::find($id);
-
-        if (!$category) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Category not found.',
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $category,
-        ], 200);
-    }
 
     /**
      * Update the specified resource in storage.

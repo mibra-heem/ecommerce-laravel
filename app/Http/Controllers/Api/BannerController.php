@@ -6,6 +6,8 @@ use App\Models\Banner;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 
 class BannerController extends Controller
 {
@@ -32,55 +34,21 @@ class BannerController extends Controller
      */
     public function store(Request $request)
     {
+        $rules = [
+            'image' => 'required|mimes:jpeg,png,jpg,gif|max:4096',
+        ];
 
-        $validator = Validator::make($request->all(), [
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
-            'category_id' => 'nullable|exists:categories,id',
-        ]);
+        $data = $request->validate($rules);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+        $path = $this->uploadImage($request->file('image'), 'banner/images', );
 
-        // Handle the image upload
-        $imageName = $this->handleImageUpload($request, 'image', 'banner/images/');
-
-        $banner = Banner::create([
-            'image' => $imageName,
-            'category_id'=> $request->category_id,
-        ]);
+        $banner = Banner::create(['image_url' => $path, 'link' => 'null']);
 
         return response()->json([
             'success' => true,
             'data' => $banner,
             'message' => 'Banner created successfully.',
         ], 201);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show($id)
-    {
-        $banner = Banner::find($id);
-
-        if (!$banner) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Banner not found.',
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $banner,
-        ], 200);
     }
 
     /**
@@ -101,10 +69,19 @@ class BannerController extends Controller
             ], 404);
         }
 
-        $validator = Validator::make($request->all(), [
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096',
-            'category_id' => 'nullable|exists:categories,id',
+        // Normalize boolean
+        $request->merge([
+            'is_active' => $request->has('is_active')
+                ? filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN)
+                : $banner->is_active,
         ]);
+
+        $rules = [
+            'image' => 'sometimes|mimes:jpeg,png,jpg,gif|max:4096',
+            'is_active' => 'nullable|boolean',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -113,10 +90,17 @@ class BannerController extends Controller
             ], 422);
         }
 
+        // If image is being updated
         if ($request->hasFile('image')) {
-            $imageName = $this->handleImageUpload($request, 'image', 'banner/images/');
-            $banner->update(['image' => $imageName]);
+            $this->deleteImage($banner->image_url); // or actual file path
+            $imageName = $this->uploadImage($request->file('image'), 'banner/images');
+            $banner->image_url = $imageName;
         }
+
+        // Update is_active if it's different
+        $banner->is_active = $request->is_active;
+
+        $banner->save();
 
         return response()->json([
             'success' => true,
@@ -124,6 +108,7 @@ class BannerController extends Controller
             'message' => 'Banner updated successfully.',
         ], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -142,6 +127,9 @@ class BannerController extends Controller
             ], 404);
         }
 
+        // Delete image from storage
+        $this->deleteImage($banner->image_url); // assuming 'image' stores the filename
+
         $banner->delete();
 
         return response()->json([
@@ -149,5 +137,6 @@ class BannerController extends Controller
             'message' => 'Banner deleted successfully.',
         ], 200);
     }
+
 
 }

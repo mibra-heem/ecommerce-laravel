@@ -14,6 +14,7 @@ class Banner extends Model
     use HasFactory;
 
     protected $fillable = [
+        'link',
         'image_url',
         'is_active',
         'order',

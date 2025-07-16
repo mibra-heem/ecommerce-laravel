@@ -43,20 +43,6 @@ class ProductController extends Controller
         ], 200);
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * This method is unnecessary for an API as forms are handled on the frontend.
-     */
-    public function create()
-    {
-        return response()->json([
-            'success' => false,
-            'message' => 'Not applicable for API.',
-        ], 405); // Method Not Allowed
-    }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -108,43 +94,6 @@ class ProductController extends Controller
             'data' => $product->load('images'), // eager load images
             'message' => 'Product created successfully.',
         ], 201);
-    }
-
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show($id)
-    {
-        $product = Product::with('category')->find($id);
-
-        if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found.',
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $product,
-        ], 200);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * This method is unnecessary for an API as forms are handled on the frontend.
-     */
-    public function edit($id)
-    {
-        return response()->json([
-            'success' => false,
-            'message' => 'Not applicable for API.',
-        ], 405); // Method Not Allowed
     }
 
     /**
