@@ -28,6 +28,7 @@ class ProductController extends Controller
                 'price' => $product->price,
                 'description' => $product->description,
                 'images' => $product->images->pluck('image_url')->toArray(),
+                'is_active' => $product->is_active,
                 'category' => [
                     'id' => $product->category->id ?? null,
                     'name' => $product->category->name ?? null,
@@ -51,6 +52,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // Normalize boolean before validation
+        $request->merge([
+            'is_active' => $request->has('is_active')
+                ? filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN)
+                : null,
+        ]);
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
@@ -73,13 +80,13 @@ class ProductController extends Controller
             'name' => $request->name,
             'category_id' => $request->category_id,
             'price' => $request->price,
-            'descr' => $request->descr,
+            'description' => $request->description,
         ]);
 
         // Handle image uploads (if any)
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
-                $imageName = $this->uploadImage($image, 'product/images/');
+                $imageName = $this->uploadImage($image, 'product/images');
 
                 // Save to product_images table
                 $product->images()->create([
@@ -91,7 +98,6 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $product->load('images'), // eager load images
             'message' => 'Product created successfully.',
         ], 201);
     }
@@ -115,15 +121,23 @@ class ProductController extends Controller
             ], 404);
         }
 
+                // Normalize boolean
+        $request->merge([
+            'is_active' => $request->has('is_active')
+                ? filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN)
+                : $product->is_active,
+        ]);
+
         $method = $request->method();
 
         $rules = [
             'name' => $method === 'PATCH' ? 'sometimes|required|string|max:255' : 'required|string|max:255',
             'category_id' => $method === 'PATCH' ? 'sometimes|required|exists:categories,id' : 'required|exists:categories,id',
             'price' => $method === 'PATCH' ? 'sometimes|required|numeric|min:0' : 'required|numeric|min:0',
-            'description' => 'nullable|string|max:1200',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'is_active' => 'nullable|boolean',
+            'description' => 'nullable|string|max:1200',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -140,6 +154,7 @@ class ProductController extends Controller
             'name',
             'category_id',
             'price',
+            'is_active',
             'description',
         ]));
 
@@ -153,7 +168,7 @@ class ProductController extends Controller
 
             // Store new images
             foreach ($request->file('images') as $index => $uploadedImage) {
-                $imagePath = $this->uploadImage($uploadedImage, 'product/images/');
+                $imagePath = $this->uploadImage($uploadedImage, 'product/images');
                 $product->images()->create([
                     'image_url' => $imagePath, // Store relative path
                     'order' => $index + 1,
@@ -172,6 +187,7 @@ class ProductController extends Controller
                 'category_id' => $product->category_id,
                 'price' => $product->price,
                 'description' => $product->description,
+                'is_active' => $product->is_active,
                 'images' => $product->images->pluck('image_url'),
             ],
             'message' => 'Product updated successfully.',

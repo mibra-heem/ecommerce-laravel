@@ -55,7 +55,7 @@ class CategoryController extends Controller
 
         $icon_url = null;
         if ($request->hasFile('icon')) {
-            $icon_url = $this->uploadImage($request->file('icon'), 'category/images/');
+            $icon_url = $this->uploadImage($request->file('icon'), 'category/images');
         }
 
         $category = Category::create([
@@ -92,7 +92,7 @@ class CategoryController extends Controller
         $request->merge([
             'is_active' => $request->has('is_active')
                 ? filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN)
-                : null,
+                : $category->is_active,
         ]);
 
         $rules = [
@@ -115,7 +115,7 @@ class CategoryController extends Controller
             if ($category->icon_url) {
                 $this->deleteImage($category->icon_url);
             }
-            $updates['icon_url'] = $this->uploadImage($request->file('icon'), 'category/images/');
+            $updates['icon_url'] = $this->uploadImage($request->file('icon'), 'category/images');
         }
 
         $category->update($updates);
@@ -126,9 +126,6 @@ class CategoryController extends Controller
             'message' => 'Category updated successfully.',
         ]);
     }
-
-
-
 
     /**
      * Remove the specified resource from storage.

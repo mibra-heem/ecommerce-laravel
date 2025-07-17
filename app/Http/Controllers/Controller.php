@@ -48,6 +48,9 @@ class Controller extends BaseController
 
     protected function deleteImage(string $imageUrl): void
     {
+        if (!$imageUrl) {
+            return; // Nothing to delete
+        }
         // Convert URL (/storage/banner/images/file.jpg) to storage path (banner/images/file.jpg)
         $relativePath = str_replace('/storage/', '', $imageUrl);
 
