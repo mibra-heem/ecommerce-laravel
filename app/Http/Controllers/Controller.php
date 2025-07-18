@@ -37,25 +37,59 @@ class Controller extends BaseController
         return redirect()->back()->withErrors($validator)->withInput();
     }
 
-    protected function uploadImage(UploadedFile $file, string $imagePath)
+    protected function uploadImage(UploadedFile $file, string $imagePath): string
     {
-        // stores in storage/app/public/banner/images/
-        $path = $file->store("{$imagePath}", 'public');
+        // Ensure directory exists
+        $uploadPath = public_path("uploads/{$imagePath}");
+        if (!file_exists($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
 
-        // returns a URL like /storage/banner/images/filename.jpg
-        return Storage::url($path);
+        // Generate unique file name
+        $imageName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+        // Move file to public/uploads/{imagePath}/
+        $file->move($uploadPath, $imageName);
+
+        // Return the public URL (e.g., /uploads/banner/images/filename.jpg)
+        return "/uploads/{$imagePath}/{$imageName}";
     }
 
-    protected function deleteImage(string $imageUrl): void
+    protected function deleteImage(?string $imageUrl): void
     {
         if (!$imageUrl) {
             return; // Nothing to delete
         }
-        // Convert URL (/storage/banner/images/file.jpg) to storage path (banner/images/file.jpg)
-        $relativePath = str_replace('/storage/', '', $imageUrl);
 
-        if (Storage::disk('public')->exists($relativePath)) {
-            Storage::disk('public')->delete($relativePath);
+        // Convert URL to full path
+        $filePath = public_path(ltrim($imageUrl, '/'));
+
+        // Delete if exists
+        if (file_exists($filePath)) {
+            unlink($filePath);
         }
     }
+
+
+    // protected function uploadImage(UploadedFile $file, string $imagePath)
+    // {
+    //     // stores in storage/app/public/banner/images/
+    //     $path = $file->store("{$imagePath}", 'public');
+
+    //     // returns a URL like /storage/banner/images/filename.jpg
+    //     return Storage::url($path);
+    // }
+
+    // protected function deleteImage(string $imageUrl): void
+    // {
+    //     if (!$imageUrl) {
+    //         return; // Nothing to delete
+    //     }
+    //     // Convert URL (/storage/banner/images/file.jpg) to storage path (banner/images/file.jpg)
+    //     $relativePath = str_replace('/storage/', '', $imageUrl);
+
+    //     if (Storage::disk('public')->exists($relativePath)) {
+    //         Storage::disk('public')->delete($relativePath);
+    //     }
+    // }
 }

@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\URL;
 
 class ProductController extends Controller
 {
@@ -27,7 +26,7 @@ class ProductController extends Controller
                 'name' => $product->name,
                 'price' => $product->price,
                 'description' => $product->description,
-                'images' => $product->images->pluck('image_url')->toArray(),
+                'image_urls' => $product->images->pluck('image_url')->toArray(),
                 'is_active' => $product->is_active,
                 'category' => [
                     'id' => $product->category->id ?? null,

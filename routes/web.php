@@ -1,9 +1,6 @@
 <?php
 
-use App\Http\Controllers\BannerController;
-use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,8 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard.dashboard');
 
-Route::resource('products', ProductController::class);
+// Route::resource('products', ProductController::class);
 
-Route::resource('banners', BannerController::class);
+// Route::resource('banners', BannerController::class);
 
-Route::resource('categories', CategoryController::class);
+// Route::resource('categories', CategoryController::class);
