@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\User\BannerController as UserBannerController;
 use App\Http\Controllers\Api\User\CategoryController as UserCategoryController;
 use App\Http\Controllers\Api\User\ProductController as UserProductController;
 
+use App\Http\Controllers\PaymentController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,3 +41,6 @@ Route::prefix('user')->group(function () {
     Route::get('categories', [UserCategoryController::class, 'index']);
     Route::get('products', [UserProductController::class, 'index']);
 });
+
+Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
+
