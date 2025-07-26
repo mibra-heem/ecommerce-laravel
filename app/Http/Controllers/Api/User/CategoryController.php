@@ -14,7 +14,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::where('is_active', true)
+        $categories = Category::where('is_active', '=', true)
             ->get(['id', 'name', 'slug', 'parent_id', 'icon_url', 'order']);
 
         return response()->json([
