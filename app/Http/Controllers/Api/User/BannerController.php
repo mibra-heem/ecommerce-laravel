@@ -14,7 +14,8 @@ class BannerController extends Controller
      */
     public function index()
     {
-        $banners = Banner::where('is_active', true)->get(['id', 'image_url', 'link', 'order']);
+        $banners = Banner::where('is_active', '=', true)
+            ->get(['id', 'image_url', 'link', 'order']);
 
         return response()->json([
             'success' => true,

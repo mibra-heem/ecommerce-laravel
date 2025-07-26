@@ -17,7 +17,9 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $productsData = Product::with(['images'])->get();
+        $productsData = Product::with(['images'])
+        ->where('is_active', '=', true)
+        ->get();
 
         $products = $productsData->map(function ($product) {
             return [
